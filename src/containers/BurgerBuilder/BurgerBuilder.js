@@ -8,8 +8,11 @@ import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import * as burgerBuilderActions from '../../store/actions/index';
 import axios from '../../axios-orders';
-import * as actionTypes from '../../store/actions';
+// the axios async usage is transferred to actions folder:burgerBuilder.js
+// now axios here only used in conjunction withErrorHandler function
+
 
 class BurgerBuilder extends Component {
     // constructor(props) {
@@ -20,21 +23,16 @@ class BurgerBuilder extends Component {
         // ingredients: null, instead of local state we use redux with ings: property
         // totalPrice: 4, handled with redux
         // purchasable: false, //  passed to build controls, to lock/unlock order button:possibly Local UI state.
+        //loading: false, // spinner display:Local UI state.
+        //error: false // error message shown or not; Local UI state. now in /actions/burgerBuilder
         purchasing: false, // modal on/off toggle: Local UI state.
-        loading: false, // spinner display:Local UI state.
-        error: false // error message shown or not; Local UI state.
-    }
+    };
 
     componentDidMount () {
         console.log(this.props);
-        // axios.get( 'https://brgrbldr-44089.firebaseio.com/ingredients.json' )
-        //     .then( response => {
-        //         this.setState( { ingredients: response.data } );
-        //     } )
-        //     .catch( error => {
-        //         this.setState( { error: true } );
-        //     } );
-    }
+        this.props.onInitIngredients();
+        //dispatches the action at mapDispatchToProps function
+    };
 
     updatePurchasabilityStatus ( ingredients ) {
         const sum = Object.keys( ingredients )
@@ -45,7 +43,7 @@ class BurgerBuilder extends Component {
                 return sum + el;
             }, 0 );
         return ( sum > 0 );
-    }
+    };
 
     // addIngredientHandler = ( type ) => {
     //     const oldCount = this.state.ingredients[type];
@@ -80,15 +78,15 @@ class BurgerBuilder extends Component {
 
     purchaseHandler = () => {
         this.setState( { purchasing: true } );
-    }
+    };
 
     purchaseCancelHandler = () => {
         this.setState( { purchasing: false } );
-    }
+    };
 
     purchaseContinueHandler = () => {
         this.props.history.push('/checkout');
-    }
+    };
 
     render () {
         const disabledInfo = {
@@ -99,7 +97,7 @@ class BurgerBuilder extends Component {
             disabledInfo[key] = disabledInfo[key] <= 0
         }
         let orderSummary = null;
-        let burger = this.state.error ? <p>Ingredients can not be loaded!</p> : <Spinner />;
+        let burger = this.props.error ? <p>Ingredients can not be loaded!</p> : <Spinner />;
 
         if ( this.props.ings ) {
             burger = (
@@ -120,9 +118,9 @@ class BurgerBuilder extends Component {
                 purchaseCancelled={this.purchaseCancelHandler}
                 purchaseContinued={this.purchaseContinueHandler} />;
         }
-        if ( this.state.loading ) {
-            orderSummary = <Spinner />;
-        }
+        // if ( this.state.loading ) {
+        //     orderSummary = <Spinner />;
+        // } Not anymore any async action in this file
         // {salad: true, meat: false, ...}
         return (
             <Auxiliary>
@@ -138,15 +136,21 @@ class BurgerBuilder extends Component {
 const mapStateToProps = state => {
     return{
         ings: state.ingredients,
-        price: state.totalPrice
+        price: state.totalPrice,
+        error: state.error
     };
-}
+};
 
 const mapDispatchToProps = dispatch => {
     return {
-        onIngredientAdded: (ingName) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredientName: ingName}),
-        onIngredientRemoved: (ingName) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredientName: ingName})
-    }
+        // onIngredientAdded: (ingName) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredientName: ingName}),
+        // onIngredientRemoved: (ingName) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredientName: ingName})
+        // these Replaced by actioncreators
+        onIngredientAdded: (ingName) => dispatch(burgerBuilderActions.addIngredient(ingName)),
+        onIngredientRemoved: (ingName) => dispatch(burgerBuilderActions.removeIngredient(ingName)),
+        onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
+    };
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(withErrorHandler( BurgerBuilder, axios ));
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler( BurgerBuilder, axios ));
+// withErrorHandler can be used because we use axios instance although using action creators

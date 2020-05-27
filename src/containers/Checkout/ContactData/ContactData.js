@@ -108,7 +108,7 @@ class ContactData extends Component {
             formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value;
         }
         const order = {
-            ingredients: this.props.ings,
+            ingredients: this.props.ings, // now referring to Redux store
             price: this.props.price, // now referring to Redux store
             orderData: formData
         }

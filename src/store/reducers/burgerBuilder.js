@@ -1,13 +1,9 @@
-import * as actiontypes from './actions';
+import * as actiontypes from '../actions/actionTypes';
 
 const initialState = {
-    ingredients: {
-        salad: 0,
-        bacon: 0,
-        cheese: 0,
-        meat: 0
-    },
-    totalPrice: 4
+    ingredients:null, // now fetched from the db
+    totalPrice: 4,
+    error: false
 };
 
 const INGREDIENT_PRICES = {
@@ -17,7 +13,7 @@ const INGREDIENT_PRICES = {
     bacon: 0.7
 };
 
-const reducer = (state = initialState, action) => {
+const burgerBuilder = (state = initialState, action) => {
     switch(action.type) {
         case actiontypes.ADD_INGREDIENT:
             return{
@@ -38,10 +34,26 @@ const reducer = (state = initialState, action) => {
                 },
                 totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName]
             };
+        case actiontypes.SET_INGREDIENTS:
+            return {
+                ...state, //old state copied first
+                ingredients: { //this ensures that the order of ingredients is the same as in the order buttons
+                  salad: action.ingredients.salad,
+                  bacon: action.ingredients.bacon,
+                  cheese: action.ingredients.cheese,
+                  meat: action.ingredients.meat
+                }, //ingredients property received from  burgerBuilder action file
+                error: false
+            };
+        case actiontypes.FETCHING_INGREDIENTS_FAILED:
+            return {
+                ...state,
+                error: true
+            }
         default:
             return state;
     }
     return state;
 };
 
-export default reducer;
+export default burgerBuilder;
