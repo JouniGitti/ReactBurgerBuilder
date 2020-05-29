@@ -34,7 +34,7 @@ const burgerBuilder = (state = initialState, action) => {
                 },
                 totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName]
             };
-        case actiontypes.SET_INGREDIENTS:
+        case actiontypes.SET_INGREDIENTS: //dispatched when ever the pagge is loaded
             return {
                 ...state, //old state copied first
                 ingredients: { //this ensures that the order of ingredients is the same as in the order buttons
@@ -43,6 +43,7 @@ const burgerBuilder = (state = initialState, action) => {
                   cheese: action.ingredients.cheese,
                   meat: action.ingredients.meat
                 }, //ingredients property received from  burgerBuilder action file
+                totalPrice: 4,
                 error: false
             };
         case actiontypes.FETCHING_INGREDIENTS_FAILED:

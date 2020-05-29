@@ -2,17 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from 'react-router-dom';
 import {Provider} from 'react-redux';
-import { createStore, applyMiddleware, compose } from 'redux'; //compose due to redux devtools
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux'; //compose due to redux devtools
 import thunk from 'redux-thunk'; // thunk acts as the middleware
 
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import burgerBuilderReducer from './store/reducers/burgerBuilder';
+import orderReducer from './store/reducers/order';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // now middleware is one kind of enhancer like devtools is also
 
-const store = createStore(burgerBuilderReducer, composeEnhancers(
+const rootReducer = combineReducers({
+    burgerBuilder: burgerBuilderReducer,
+    order: orderReducer
+});
+
+const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)
 ));
 
